@@ -1,0 +1,151 @@
+#!/bin/bash
+
+ip=0.0.0.0
+A=0
+B=0
+C=0
+D=0
+
+
+Main () {
+	echo "What would you like to do?"
+	echo "1. Find class A addresses"
+	echo "2. Find class B addresses"
+	echo "3. Find class C addresses"
+	echo "4. Exit"
+	read -n 1 -s -r -p "Make a selection: " selection
+	case $selection in
+		1)
+			clear
+			ping_A
+			;;
+		2)
+			clear
+			ping_B
+			;;
+		3)
+			clear
+			ping_C
+			;;
+		4)
+			clear
+			exit 0
+			;;
+		*)
+			clear
+			read -n 1 -s -r -p "I dont have that option... PRESS ANY KEY TO CONTINUE"
+			Main
+			;;
+esac
+}
+case_B () {
+case $B in
+	255)
+		B=0
+		A=$(($A+1))
+		case_A
+		echo "----$A.$B.$C.0 NETWORK----"
+		;;
+	*)
+		ip=$A.$B.$C.$D
+		result=$(ping -c 1 -W 0.2 -b $ip 2>/dev/null | grep received | cut -d " " -f 4)
+		if [ $result -gt 0 ]
+		then
+			echo "$ip is UP"
+		fi
+		D=$(($D+1))
+		;;
+esac
+}
+
+case_C () {
+case $C in
+	255)
+		C=0
+		B=$(($B+1))
+		case_B
+		echo "----$A.$B.$C.0 NETWORK----"
+		;;
+	*)
+		ip=$A.$B.$C.$D
+		result=$(ping -c 1 -W 0.2 -b $ip 2>/dev/null | grep received | cut -d " " -f 4)
+		if [ $result -gt 0 ]
+		then
+			echo "$ip is UP"
+		fi
+		D=$(($D+1))
+		;;
+esac
+}
+
+case_D () {
+case $D in
+	256)
+		D=0
+		C=$(($C+1))
+		case_C
+		echo "----$A.$B.$C.0 NETWORK----"
+		;;
+	*)
+		ip=$A.$B.$C.$D
+		result=$(ping -c 1 -W 0.2 -b $ip 2>/dev/null| grep received |cut -d " " -f 4)
+		if [ $result -gt 0 ]
+		then
+			echo "$ip is UP"
+		fi
+		D=$(($D+1))
+		;;
+esac
+}
+
+#--------------------------PING A SCRIPT------------------------
+ping_A () {
+
+A=10
+B=0
+C=0 
+D=0  
+ip=10.0.0.0
+
+until [[ $B = 255 && $C = 255 && $D -gt 255 ]]
+do
+	case_D
+done
+read -n 1 -s -r -p "Press Any Key To Continue"
+clear
+Main
+}
+#--------------------------PING B SCRIPT----------------------------
+ping_B () {
+A=172
+B=16
+C=0
+D=0
+ip=172.16.0.0
+
+until [[ $B = 32 && $C = 255 && $D -gt 255 ]]
+do
+	case_D
+done
+read -n 1 -s -r -p "Press Any Key To Continue"
+clear
+Main
+}
+#---------------------------PING C SCRIPT--------------------------
+ping_C () {
+A=192
+B=168
+C=0
+D=0
+ip=192.168.0.0
+
+until [[ $C = 255 && $D -gt 255 ]]
+do
+	case_D
+done
+read -n 1 -s -r -p "Press Any Key To Continue"
+clear
+Main
+}
+
+Main
